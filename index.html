@@ -411,20 +411,49 @@
         }
 
         resetSimulation() {
+          // Reset the underlying physics engine state
           this.physics.reset();
+          // Stop the simulation loop
           this.isSimulationRunning = false;
 
-          // Reset positions
+          // Clear the landed flag so the jumper reattaches to the plane on the next frame
+          this.hasLanded = false;
+
+          // Restore player health to maximum and update the health bar
+          this.health = this.maxHealth;
+          this.updateHealthBar();
+
+          // Reset the parachutist orientation and landing animation state
+          if (this.parachutist) {
+            this.parachutist.rotation.set(0, 0, 0);
+            if (this.parachutist.userData) {
+              this.parachutist.userData.landingAnimation = false;
+            }
+          }
+
+          // Reset parachute state (hide it and mark as not deployed)
+          if (this.parachute) {
+            this.parachute.visible = false;
+            // Ensure parachute deployment animation can run again
+            if (this.parachute.userData) {
+              this.parachute.userData.deployed = false;
+            }
+            // Restore parachute scale in case it was modified during deployment
+            this.parachute.scale.set(1, 1, 1);
+          }
+
+          // Reset positions of all major objects
+          // Place the parachutist and parachute at their default altitudes;
+          // the animate loop will subsequently glue them to the plane when hasLanded is false
           this.parachutist.position.set(0, 3000, 0);
           this.parachute.position.set(0, 3008, 0);
-          this.parachute.visible = false;
           this.plane.position.set(-100, 3000, 0);
 
-          // Reset camera
+          // Reset camera and OrbitControls target to initial values
           this.camera.position.set(50, 3050, 100);
           this.controls.target.set(0, 3000, 0);
 
-          // Reset button
+          // Re-enable the deploy button and restore its label and styling
           const deployBtn = document.getElementById("deploy-parachute");
           if (deployBtn) {
             deployBtn.disabled = false;
@@ -432,7 +461,7 @@
             deployBtn.style.background = "#ff6b6b";
           }
 
-          console.log("Simulation reset");
+          console.log("Simulation reset after updates ");
         }
 
         startPhysicsDisplay() {
