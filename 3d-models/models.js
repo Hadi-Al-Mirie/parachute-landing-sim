@@ -169,15 +169,13 @@ class Models {
     if (typeof THREE.OBJLoader === "function") {
       const loader = new THREE.OBJLoader();
       loader.load(
-        // Path to your OBJ file relative to the HTML page
         "assets/plane.obj",
-        // onLoad callback
         (obj) => {
-          // Traverse the loaded object and apply our materials
+          // Rotate the entire model 90° around Y
+          obj.rotation.y = (-1 * Math.PI) / 2;
+
           obj.traverse((child) => {
             if (child.isMesh) {
-              // Apply a default material to all meshes in the model
-              // You can customize this per-object if your OBJ groups are named
               child.material = this.materials.planeFuselage;
               child.castShadow = true;
               child.receiveShadow = true;
@@ -185,12 +183,8 @@ class Models {
           });
           plane.add(obj);
         },
-        // onProgress callback (optional)
         undefined,
-        // onError callback
-        (error) => {
-          console.error("Error loading plane OBJ model:", error);
-        },
+        (error) => console.error("Error loading plane OBJ model:", error),
       );
     } else {
       console.warn(
@@ -262,7 +256,7 @@ class Models {
       // Position clouds randomly in the sky
       cloud.position.set(
         (Math.random() - 0.5) * 1000,
-        Math.random() * 200 + 100,
+        3000,
         (Math.random() - 0.5) * 1000,
       );
 
