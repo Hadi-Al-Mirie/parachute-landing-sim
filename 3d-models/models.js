@@ -149,42 +149,59 @@ class Models {
   }
 
   createPlane() {
+    /**
+     * Load the plane from an OBJ model.
+     *
+     * This implementation uses THREE.OBJLoader to read a .obj mesh from the
+     * local `assets/plane.obj` file.  The loader is asynchronous, so the
+     * returned group is created immediately and then populated once the file
+     * has finished loading.  If the OBJLoader script has not been included
+     * in your HTML, you will need to add it before this function runs.  See
+     * README or index.html for an example:
+     *
+     * `<script src="https://threejs.org/examples/js/loaders/OBJLoader.js"></script>`
+     *
+     * The loaded mesh is assigned the plane fuselage material by default.
+     */
     const plane = new THREE.Group();
 
-    // Fuselage
-    const fuselageGeometry = new THREE.CylinderGeometry(1, 0.5, 12, 12);
-    const fuselage = new THREE.Mesh(
-      fuselageGeometry,
-      this.materials.planeFuselage,
-    );
-    fuselage.rotation.z = Math.PI / 2;
-    plane.add(fuselage);
+    // Create loader only if OBJLoader is available globally.
+    if (typeof THREE.OBJLoader === "function") {
+      const loader = new THREE.OBJLoader();
+      loader.load(
+        // Path to your OBJ file relative to the HTML page
+        "assets/plane.obj",
+        // onLoad callback
+        (obj) => {
+          // Traverse the loaded object and apply our materials
+          obj.traverse((child) => {
+            if (child.isMesh) {
+              // Apply a default material to all meshes in the model
+              // You can customize this per-object if your OBJ groups are named
+              child.material = this.materials.planeFuselage;
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+          plane.add(obj);
+        },
+        // onProgress callback (optional)
+        undefined,
+        // onError callback
+        (error) => {
+          console.error("Error loading plane OBJ model:", error);
+        },
+      );
+    } else {
+      console.warn(
+        "OBJLoader is not available.  Please include OBJLoader.js from Three.js examples.",
+      );
+    }
 
-    // Wings
-    const wingGeometry = new THREE.BoxGeometry(16, 0.3, 3);
-    const wings = new THREE.Mesh(wingGeometry, this.materials.planeWings);
-    wings.position.y = 0;
-    plane.add(wings);
-
-    // Tail
-    const tailGeometry = new THREE.BoxGeometry(0.3, 4, 2);
-    const tail = new THREE.Mesh(tailGeometry, this.materials.planeWings);
-    tail.position.x = -5;
-    tail.position.y = 1;
-    // plane.add(tail);
-
-    // Propeller
-    const propGeometry = new THREE.BoxGeometry(0.1, 4, 0.1);
-    const propeller = new THREE.Mesh(
-      propGeometry,
-      this.materials.planeFuselage,
-    );
-    propeller.position.x = 6;
-    plane.add(propeller);
-
-    // Add animation properties
+    // Provide default animation properties. Note that OBJ models may not
+    // include a named propeller part; if so, propeller will remain null.
     plane.userData = {
-      propeller: propeller,
+      propeller: null,
       speed: 50, // m/s
     };
 
@@ -221,7 +238,7 @@ class Models {
     const clouds = new THREE.Group();
 
     // Create multiple cloud clusters
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 5; i++) {
       const cloud = new THREE.Group();
 
       // Each cloud made of multiple spheres
