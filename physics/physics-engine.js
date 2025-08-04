@@ -18,7 +18,7 @@ class PhysicsEngine {
 
     // Simulation state
     this.state = {
-      position: new THREE.Vector3(0, 3000, 0), // Starting altitude 3000m
+      position: new THREE.Vector3(0, 1500, 0), // Starting altitude 1500m
       velocity: new THREE.Vector3(0, 0, 0), // Initial velocity
       acceleration: new THREE.Vector3(0, 0, 0), // Current acceleration
       angularVelocity: new THREE.Vector3(0, 0, 0), // Angular velocity
@@ -282,7 +282,7 @@ class PhysicsEngine {
 
   // Reset simulation
   reset() {
-    this.state.position.set(0, 3000, 0);
+    this.state.position.set(0, 1500, 0);
     this.state.velocity.set(0, 0, 0);
     this.state.acceleration.set(0, 0, 0);
     this.state.angularVelocity.set(0, 0, 0);

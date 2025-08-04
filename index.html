@@ -116,7 +116,7 @@
             </div>
           </div>
           <div>Velocity: <span id="velocity-display">0.0</span> m/s</div>
-          <div>Altitude: <span id="altitude-display">3000</span> m</div>
+          <div>Altitude: <span id="altitude-display">1500</span> m</div>
           <div>
             Acceleration: <span id="acceleration-display">0.0</span> m/s²
           </div>
@@ -236,7 +236,7 @@
           );
           this.controls.enableDamping = true;
           this.controls.dampingFactor = 0.05;
-          this.controls.target.set(0, 3000, 0);
+          this.controls.target.set(0, 1500, 0);
 
           // Create lighting
           const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
@@ -252,15 +252,15 @@
 
           // Create and add objects
           this.parachutist = this.models.createParachutist();
-          this.parachutist.position.set(0, 3000, 0);
+          this.parachutist.position.set(0, 1500, 0);
           this.scene.add(this.parachutist);
 
           this.parachute = this.models.createParachute();
-          this.parachute.position.set(0, 3008, 0);
+          this.parachute.position.set(0, 1508, 0);
           this.scene.add(this.parachute);
 
           this.plane = this.models.createPlane();
-          this.plane.position.set(-100, 3000, 0);
+          this.plane.position.set(-100, 1500, 0);
           this.plane.rotation.y = Math.PI / 2;
           this.scene.add(this.plane);
 
@@ -448,13 +448,13 @@
           // Reset positions of all major objects
           // Place the parachutist and parachute at their default altitudes;
           // the animate loop will subsequently glue them to the plane when hasLanded is false
-          this.parachutist.position.set(0, 3000, 0);
+          this.parachutist.position.set(0, 1500, 0);
           this.parachute.position.set(0, 3008, 0);
-          this.plane.position.set(-100, 3000, 0);
+          this.plane.position.set(-100, 1508, 0);
 
           // Reset camera and OrbitControls target to initial values
           this.camera.position.set(50, 3050, 100);
-          this.controls.target.set(0, 3000, 0);
+          this.controls.target.set(0, 1500, 0);
 
           // Re-enable the deploy button and restore its label and styling
           const deployBtn = document.getElementById("deploy-parachute");

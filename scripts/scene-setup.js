@@ -67,8 +67,8 @@ class SceneSetup {
     this.camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 5000);
 
     // Initial camera position
-    this.camera.position.set(0, 3050, 100);
-    this.camera.lookAt(0, 3000, 0);
+    this.camera.position.set(0, 1550, 100);
+    this.camera.lookAt(0, 1500, 0);
   }
 
   createRenderer(container) {
@@ -138,16 +138,16 @@ class SceneSetup {
 
     // Create and add all models to scene
     this.sceneObjects.parachutist = this.models.createParachutist();
-    this.sceneObjects.parachutist.position.set(0, 3000, 0);
+    this.sceneObjects.parachutist.position.set(0, 1500, 0);
     this.sceneObjects.parachutist.castShadow = true;
     this.scene.add(this.sceneObjects.parachutist);
 
     this.sceneObjects.parachute = this.models.createParachute();
-    this.sceneObjects.parachute.position.set(0, 3008, 0); // Slightly above parachutist
+    this.sceneObjects.parachute.position.set(0, 1508, 0); // Slightly above parachutist
     this.scene.add(this.sceneObjects.parachute);
 
     this.sceneObjects.plane = this.models.createPlane();
-    this.sceneObjects.plane.position.set(-100, 3000, 0);
+    this.sceneObjects.plane.position.set(-100, 1500, 0);
     this.sceneObjects.plane.rotation.y = Math.PI / 2;
     this.sceneObjects.plane.castShadow = true;
     this.scene.add(this.sceneObjects.plane);
@@ -346,14 +346,14 @@ class SceneSetup {
     }
 
     // Reset object positions
-    this.sceneObjects.parachutist.position.set(0, 3000, 0);
+    this.sceneObjects.parachutist.position.set(0, 1500, 0);
     this.sceneObjects.parachutist.rotation.set(0, 0, 0);
-    this.sceneObjects.parachute.position.set(0, 3008, 0);
+    this.sceneObjects.parachute.position.set(0, 1508, 0);
     this.sceneObjects.parachute.visible = false;
 
     // Reset camera
-    this.camera.position.set(0, 3050, 100);
-    this.controls.target.set(0, 3000, 0);
+    this.camera.position.set(0, 1550, 100);
+    this.controls.target.set(0, 1500, 0);
     this.controls.update();
 
     this.showStatus("Simulation Reset", "info");
