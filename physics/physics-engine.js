@@ -120,6 +120,7 @@ class PhysicsEngine {
 
     const gravityMagnitude = this.parameters.mass * this.parameters.gravity;
     const dragMagnitude = this.state.forces.drag.length();
+
     // Tension acts upward when drag is less than gravity
     const tensionMagnitude = Math.max(0, gravityMagnitude - dragMagnitude);
     const tensionForce = new THREE.Vector3(0, tensionMagnitude, 0);
@@ -165,12 +166,34 @@ class PhysicsEngine {
 
   // Calculate wind force
   calculateWindForce() {
-    const windForce = new THREE.Vector3(
-      this.parameters.windSpeed * this.parameters.airDensity * 0.5,
+    const windSpeed = this.parameters.windSpeed; // السرعة المعطاة من الواجهة
+    const bodyArea = this.parameters.bodyArea; // مساحة جسم المظلي
+    const airDensity = this.parameters.airDensity; // الكثافة
+
+    // اتجه الرياح: افترضنا الرياح تتحرك على المحور X فقط
+    const windVector = new THREE.Vector3(windSpeed, 0, 0);
+    const velocityVector = new THREE.Vector3(
+      this.state.velocity.x,
       0,
-      0,
+      this.state.velocity.z,
     );
+
+    // نحسب الفرق بين الرياح وسرعة المظلي (السرعة النسبية)
+    const relativeWind = windVector.sub(velocityVector);
+    const speed = relativeWind.length();
+
+    // نحسب اتجاه الرياح النسبية
+    const windDirection = relativeWind.normalize();
+
+    // نحسب شدة القوة: ½ * ρ * A * V²
+    const windMagnitude = 0.5 * airDensity * bodyArea * speed * speed;
+
+    // نركب القوة النهائية:
+    const windForce = windDirection.multiplyScalar(windMagnitude);
+
+    // نحدث قوة الرياح في الحالة العامة
     this.state.forces.wind.copy(windForce);
+
     return windForce;
   }
 
@@ -251,6 +274,7 @@ class PhysicsEngine {
         this.callbacks.onGroundHit(this.state.velocity.length());
       }
     }
+
     // Air density variation with altitude (simplified)
     const altitude = this.state.position.y;
     this.parameters.airDensity =
