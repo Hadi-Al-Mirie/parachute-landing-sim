@@ -166,12 +166,30 @@ class PhysicsEngine {
 
   // Calculate wind force
   calculateWindForce() {
-    const windForce = new THREE.Vector3(
-      this.parameters.windSpeed * this.parameters.airDensity * 0.5,
-      0,
-      0,
-    );
+    const windSpeed = this.parameters.windSpeed; // السرعة المعطاة من الواجهة
+    const bodyArea = this.parameters.bodyArea;   // مساحة جسم المظلي
+    const airDensity = this.parameters.airDensity; // الكثافة
+
+    // اتجه الرياح: افترضنا الرياح تتحرك على المحور X فقط
+    const windVector = new THREE.Vector3(windSpeed, 0, 0);
+    const velocityVector = new THREE.Vector3(this.state.velocity.x, 0, this.state.velocity.z);
+
+    // نحسب الفرق بين الرياح وسرعة المظلي (السرعة النسبية)
+    const relativeWind = windVector.sub(velocityVector);
+    const speed = relativeWind.length();
+
+    // نحسب اتجاه الرياح النسبية
+    const windDirection = relativeWind.normalize();
+
+    // نحسب شدة القوة: ½ * ρ * A * V²
+    const windMagnitude = 0.5 * airDensity * bodyArea * speed * speed;
+
+    // نركب القوة النهائية:
+    const windForce = windDirection.multiplyScalar(windMagnitude);
+
+    // نحدث قوة الرياح في الحالة العامة
     this.state.forces.wind.copy(windForce);
+
     return windForce;
   }
 
@@ -186,7 +204,7 @@ class PhysicsEngine {
 
     const terminalVelocity = Math.sqrt(
       (2 * this.parameters.mass * this.parameters.gravity) /
-        (this.parameters.airDensity * cd * area),
+      (this.parameters.airDensity * cd * area),
     );
 
     return terminalVelocity;
@@ -267,6 +285,9 @@ class PhysicsEngine {
       // Sudden deceleration when parachute opens
       const currentSpeed = this.state.velocity.length();
       const deploymentShock = Math.min(currentSpeed * 0.3, 20); // Limit shock
+      if (this.elements.windForceDisplay) {
+        this.elements.windForceDisplay.textContent = data.windForce.toFixed(1);
+      }
 
       // Reduce velocity in the direction of motion
       if (currentSpeed > 0) {
@@ -303,11 +324,14 @@ class PhysicsEngine {
       altitude: Math.max(0, this.state.position.y),
       acceleration: this.state.acceleration.length(),
       dragForce: this.state.forces.drag.length(),
+      gravityForce: this.state.forces.gravity.length(),
       terminalVelocity: this.calculateTerminalVelocity(),
       kineticEnergy: this.calculateKineticEnergy(),
       position: this.state.position.clone(),
       parachuteDeployed: this.parameters.parachuteDeployed,
       time: this.state.time,
+      windForce: this.state.forces.wind.length(),
+
     };
   }
 
