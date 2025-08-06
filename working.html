@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parachute Landing Simulator</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="container">
+        <!-- Three.js canvas will be inserted here -->
+    </div>
+    
+    <!-- Control Panel -->
+    <div id="control-panel">
+        <h3>Physics Controls</h3>
+        
+        <div class="control-group">
+            <label for="gravity">Gravity (m/s²):</label>
+            <input type="range" id="gravity" min="1" max="20" value="9.81" step="0.1">
+            <span id="gravity-value">9.81</span>
+        </div>
+        
+        <div class="control-group">
+            <label for="mass">Mass (kg):</label>
+            <input type="range" id="mass" min="50" max="150" value="80" step="1">
+            <span id="mass-value">80</span>
+        </div>
+        
+        <div class="control-group">
+            <label for="drag-coefficient">Drag Coefficient:</label>
+            <input type="range" id="drag-coefficient" min="0.1" max="2.0" value="1.3" step="0.1">
+            <span id="drag-coefficient-value">1.3</span>
+        </div>
+        
+        <div class="control-group">
+            <label for="air-density">Air Density (kg/m³):</label>
+            <input type="range" id="air-density" min="0.8" max="1.4" value="1.225" step="0.01">
+            <span id="air-density-value">1.225</span>
+        </div>
+        
+        <div class="control-group">
+            <label for="parachute-area">Parachute Area (m²):</label>
+            <input type="range" id="parachute-area" min="20" max="100" value="50" step="1">
+            <span id="parachute-area-value">50</span>
+        </div>
+        
+        <div class="control-group">
+            <label for="wind-speed">Wind Speed (m/s):</label>
+            <input type="range" id="wind-speed" min="0" max="20" value="0" step="0.5">
+            <span id="wind-speed-value">0</span>
+        </div>
+        
+        <div class="button-group">
+            <button id="deploy-parachute">Deploy Parachute</button>
+            <button id="reset-simulation">Reset</button>
+            <button id="start-simulation">Start Jump</button>
+        </div>
+        
+        <!-- Physics Display -->
+        <div id="physics-display">
+            <h4>Real-time Physics</h4>
+            <div class="physics-info">
+                <div>Velocity: <span id="velocity-display">0.0</span> m/s</div>
+                <div>Altitude: <span id="altitude-display">3000</span> m</div>
+                <div>Acceleration: <span id="acceleration-display">0.0</span> m/s²</div>
+                <div>Drag Force: <span id="drag-force-display">0.0</span> N</div>
+                <div>Terminal Velocity: <span id="terminal-velocity-display">0.0</span> m/s</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Instructions -->
+    <div id="instructions">
+        <h3>Instructions</h3>
+        <p>1. Adjust physics parameters using the controls</p>
+        <p>2. Click "Start Jump" to begin simulation</p>
+        <p>3. Click "Deploy Parachute" when ready</p>
+        <p>4. Use "Reset" to restart the simulation</p>
+        <button id="close-instructions">Got it!</button>
+    </div>
+
+    <!-- Import Three.js -->
+    <script src="lib/three.min.js"></script>
+    <script src="lib/OrbitControls.js"></script>
+    
+    <!-- Import our scripts -->
+    <script src="physics/physics-engine.js"></script>
+    <script src="3d-models/models.js"></script>
+    <script>
+        // Main application - simplified and working
+        class ParachuteSimulator {
+            constructor() {
+                console.log('Initializing Parachute Simulator...');
+                
+                try {
+                    this.init();
+                } catch (error) {
+                    console.error('Initialization failed:', error);
+                    this.showError('Failed to initialize. Check console for details.');
+                }
+            }
+            
+            init() {
+                // Initialize physics
+                this.physics = new PhysicsEngine();
+                console.log('Physics engine initialized');
+                
+                // Initialize scene
+                this.initScene();
+                console.log('Scene initialized');
+                
+                // Initialize controls
+                this.initControls();
+                console.log('Controls initialized');
+                
+                // Start animation loop
+                this.clock = new THREE.Clock();
+                this.animate();
+                
+                // Hide instructions after delay
+                setTimeout(() => {
+                    const instructions = document.getElementById('instructions');
+                    if (instructions) {
+                        instructions.classList.add('hidden');
+                    }
+                }, 5000);
+                
+                console.log('Parachute Simulator initialized successfully!');
+            }
+            
+            initScene() {
+                // Create scene
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x87CEEB);
+                this.scene.fog = new THREE.Fog(0x87CEEB, 100, 2000);
+                
+                // Create camera
+                const aspect = window.innerWidth / window.innerHeight;
+                this.camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 5000);
+                this.camera.position.set(50, 3050, 100);
+                
+                // Create renderer
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                document.getElementById('container').appendChild(this.renderer.domElement);
+                
+                // Create controls
+                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                this.controls.target.set(0, 3000, 0);
+                
+                // Create lighting
+                const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+                this.scene.add(ambientLight);
+                
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+                directionalLight.position.set(100, 200, 100);
+                directionalLight.castShadow = true;
+                this.scene.add(directionalLight);
+                
+                // Create models
+                this.models = new Models();
+                
+                // Create and add objects
+                this.parachutist = this.models.createParachutist();
+                this.parachutist.position.set(0, 3000, 0);
+                this.scene.add(this.parachutist);
+                
+                this.parachute = this.models.createParachute();
+                this.parachute.position.set(0, 3008, 0);
+                this.scene.add(this.parachute);
+                
+                this.plane = this.models.createPlane();
+                this.plane.position.set(-100, 3000, 0);
+                this.plane.rotation.y = Math.PI / 2;
+                this.scene.add(this.plane);
+                
+                this.ground = this.models.createGround();
+                this.scene.add(this.ground);
+                
+                this.clouds = this.models.createClouds();
+                this.scene.add(this.clouds);
+                
+                // Window resize handler
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            }
+            
+            initControls() {
+                // Slider controls
+                const sliders = [
+                    { id: 'gravity', param: 'gravity', display: 'gravity-value' },
+                    { id: 'mass', param: 'mass', display: 'mass-value' },
+                    { id: 'drag-coefficient', param: 'dragCoefficient', display: 'drag-coefficient-value' },
+                    { id: 'air-density', param: 'airDensity', display: 'air-density-value' },
+                    { id: 'parachute-area', param: 'parachuteArea', display: 'parachute-area-value' },
+                    { id: 'wind-speed', param: 'windSpeed', display: 'wind-speed-value' }
+                ];
+                
+                sliders.forEach(config => {
+                    const slider = document.getElementById(config.id);
+                    const display = document.getElementById(config.display);
+                    
+                    if (slider && display) {
+                        display.textContent = slider.value;
+                        
+                        slider.addEventListener('input', (e) => {
+                            const value = parseFloat(e.target.value);
+                            display.textContent = value.toFixed(2);
+                            this.physics.updateParameter(config.param, value);
+                        });
+                    }
+                });
+                
+                // Button controls
+                const startBtn = document.getElementById('start-simulation');
+                if (startBtn) {
+                    startBtn.addEventListener('click', () => this.startSimulation());
+                }
+                
+                const deployBtn = document.getElementById('deploy-parachute');
+                if (deployBtn) {
+                    deployBtn.addEventListener('click', () => this.deployParachute());
+                }
+                
+                const resetBtn = document.getElementById('reset-simulation');
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', () => this.resetSimulation());
+                }
+                
+                // Instructions close button
+                const closeInstructionsBtn = document.getElementById('close-instructions');
+                if (closeInstructionsBtn) {
+                    closeInstructionsBtn.addEventListener('click', () => {
+                        document.getElementById('instructions').classList.add('hidden');
+                    });
+                }
+                
+                // Keyboard controls
+                document.addEventListener('keydown', (e) => {
+                    switch(e.code) {
+                        case 'Space':
+                            e.preventDefault();
+                            this.deployParachute();
+                            break;
+                        case 'KeyR':
+                            e.preventDefault();
+                            this.resetSimulation();
+                            break;
+                        case 'KeyS':
+                            e.preventDefault();
+                            this.startSimulation();
+                            break;
+                    }
+                });
+                
+                // Start physics display updates
+                this.startPhysicsDisplay();
+            }
+            
+            startSimulation() {
+                this.isSimulationRunning = true;
+                console.log('Simulation started');
+                
+                // Animate plane exit
+                if (this.plane) {
+                    const startPos = this.plane.position.clone();
+                    const targetPos = new THREE.Vector3(-500, 3000, 0);
+                    const duration = 5000;
+                    const startTime = Date.now();
+                    
+                    const animatePlane = () => {
+                        const elapsed = Date.now() - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        this.plane.position.lerpVectors(startPos, targetPos, progress);
+                        
+                        if (progress < 1) {
+                            requestAnimationFrame(animatePlane);
+                        }
+                    };
+                    animatePlane();
+                }
+            }
+            
+            deployParachute() {
+                if (this.physics.deployParachute()) {
+                    this.models.deployParachute(this.parachute);
+                    console.log('Parachute deployed');
+                    
+                    const deployBtn = document.getElementById('deploy-parachute');
+                    if (deployBtn) {
+                        deployBtn.disabled = true;
+                        deployBtn.textContent = 'Parachute Deployed';
+                        deployBtn.style.background = '#4CAF50';
+                    }
+                }
+            }
+            
+            resetSimulation() {
+                this.physics.reset();
+                this.isSimulationRunning = false;
+                
+                // Reset positions
+                this.parachutist.position.set(0, 3000, 0);
+                this.parachute.position.set(0, 3008, 0);
+                this.parachute.visible = false;
+                this.plane.position.set(-100, 3000, 0);
+                
+                // Reset camera
+                this.camera.position.set(50, 3050, 100);
+                this.controls.target.set(0, 3000, 0);
+                
+                // Reset button
+                const deployBtn = document.getElementById('deploy-parachute');
+                if (deployBtn) {
+                    deployBtn.disabled = false;
+                    deployBtn.textContent = 'Deploy Parachute';
+                    deployBtn.style.background = '#ff6b6b';
+                }
+                
+                console.log('Simulation reset');
+            }
+            
+            startPhysicsDisplay() {
+                setInterval(() => {
+                    const data = this.physics.getPhysicsData();
+                    
+                    const elements = {
+                        'velocity-display': data.velocity.toFixed(1),
+                        'altitude-display': data.altitude.toFixed(0),
+                        'acceleration-display': data.acceleration.toFixed(1),
+                        'drag-force-display': data.dragForce.toFixed(1),
+                        'terminal-velocity-display': data.terminalVelocity.toFixed(1)
+                    };
+                    
+                    Object.entries(elements).forEach(([id, value]) => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            element.textContent = value;
+                        }
+                    });
+                }, 100);
+            }
+            
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                const deltaTime = this.clock.getDelta();
+                
+                // Update physics
+                this.physics.update(deltaTime);
+                const physicsData = this.physics.getPhysicsData();
+                
+                // Update object positions
+                this.parachutist.position.copy(physicsData.position);
+                
+                if (physicsData.parachuteDeployed) {
+                    this.parachute.visible = true;
+                    this.parachute.position.copy(physicsData.position);
+                    this.parachute.position.y += 8;
+                }
+                
+                // Animate models
+                if (this.models) {
+                    this.models.animateParachutist(this.parachutist, deltaTime, this.physics.state.velocity);
+                    this.models.animatePlane(this.plane, deltaTime);
+                    this.models.animateParachute(this.parachute, deltaTime, this.physics.state.velocity);
+                }
+                
+                // Update camera to follow action
+                if (this.isSimulationRunning) {
+                    const targetPos = physicsData.position.clone();
+                    const cameraOffset = new THREE.Vector3(50, 50, 100);
+                    const desiredPos = targetPos.clone().add(cameraOffset);
+                    
+                    this.camera.position.lerp(desiredPos, 0.02);
+                    this.controls.target.lerp(targetPos, 0.02);
+                }
+                
+                // Update controls and render
+                this.controls.update();
+                this.renderer.render(this.scene, this.camera);
+            }
+            
+            showError(message) {
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: #F44336;
+                    color: white;
+                    padding: 20px;
+                    border-radius: 5px;
+                    z-index: 5000;
+                    font-weight: bold;
+                `;
+                errorDiv.textContent = message;
+                document.body.appendChild(errorDiv);
+            }
+        }
+        
+        // Initialize when ready
+        document.addEventListener('DOMContentLoaded', () => {
+            new ParachuteSimulator();
+        });
+        
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            new ParachuteSimulator();
+        }
+    </script>
+</body>
+</html>
+

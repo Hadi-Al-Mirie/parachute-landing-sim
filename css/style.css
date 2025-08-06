@@ -1,0 +1,339 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
+    overflow: hidden;
+    height: 100vh;
+}
+
+#container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+/* Control Panel Styles */
+#control-panel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#control-panel h3 {
+    margin-bottom: 20px;
+    color: #87CEEB;
+    text-align: center;
+    border-bottom: 2px solid #4682B4;
+    padding-bottom: 10px;
+}
+
+.control-group {
+    margin-bottom: 15px;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #ccc;
+}
+
+.control-group input[type="range"] {
+    width: 100%;
+    margin-bottom: 5px;
+    accent-color: #4682B4;
+}
+
+.control-group span {
+    display: inline-block;
+    background: #4682B4;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    min-width: 50px;
+    text-align: center;
+}
+
+.button-group {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.button-group button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+#deploy-parachute {
+    background: #ff6b6b;
+    color: white;
+}
+
+#deploy-parachute:hover {
+    background: #ff5252;
+    transform: translateY(-2px);
+}
+
+#deploy-parachute:disabled {
+    background: #666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#reset-simulation {
+    background: #4ecdc4;
+    color: white;
+}
+
+#reset-simulation:hover {
+    background: #26a69a;
+    transform: translateY(-2px);
+}
+
+#start-simulation {
+    background: #45b7d1;
+    color: white;
+}
+
+#start-simulation:hover {
+    background: #2196f3;
+    transform: translateY(-2px);
+}
+
+/* Physics Display */
+#physics-display {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #444;
+}
+
+#physics-display h4 {
+    color: #87CEEB;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.physics-info div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.physics-info span {
+    color: #4ecdc4;
+    font-weight: bold;
+}
+
+/* Loading Screen */
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.loading-content {
+    text-align: center;
+    color: white;
+}
+
+.loading-content h2 {
+    margin-bottom: 30px;
+    color: #87CEEB;
+}
+
+.loading-bar {
+    width: 300px;
+    height: 6px;
+    background: #333;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.loading-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #4682B4, #87CEEB);
+    width: 0%;
+    transition: width 0.3s ease;
+    animation: loading-shimmer 2s infinite;
+}
+
+@keyframes loading-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Instructions */
+#instructions {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    z-index: 1500;
+    max-width: 400px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+#instructions h3 {
+    color: #87CEEB;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #4682B4;
+    padding-bottom: 10px;
+}
+
+#instructions p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+#close-instructions {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #4682B4;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease;
+}
+
+#close-instructions:hover {
+    background: #2196f3;
+}
+
+/* Hidden class */
+.hidden {
+    display: none !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    #control-panel {
+        width: 280px;
+        right: 10px;
+        top: 10px;
+        font-size: 12px;
+    }
+
+    #instructions {
+        max-width: 90vw;
+        padding: 20px;
+    }
+}
+
+/* Animation for parachute deployment */
+@keyframes parachute-deploy {
+    0% {
+        transform: scale(0.1);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.parachute-deployed {
+    animation: parachute-deploy 1s ease-out;
+}
+
+/* Status indicators */
+.status-indicator {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    z-index: 1000;
+}
+
+.status-indicator.success {
+    background: rgba(76, 175, 80, 0.9);
+}
+
+.status-indicator.warning {
+    background: rgba(255, 152, 0, 0.9);
+}
+
+.status-indicator.danger {
+    background: rgba(244, 67, 54, 0.9);
+}
+
+/* Health bar styles */
+#health-container {
+    margin-top: 20px;
+}
+
+#health-container .health-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #ccc;
+}
+
+#health-bar-wrapper {
+    width: 100%;
+    height: 10px;
+    background: #333;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+#health-bar {
+    height: 100%;
+    width: 100%;
+    background: #4ecdc4;
+    transition: width 0.3s ease, background 0.3s ease;
+}

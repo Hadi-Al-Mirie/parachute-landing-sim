@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parachute Landing Simulator - Debug</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="container">
+        <!-- Three.js canvas will be inserted here -->
+    </div>
+    
+    <!-- Control Panel -->
+    <div id="control-panel">
+        <h3>Physics Controls</h3>
+        
+        <div class="control-group">
+            <label for="gravity">Gravity (m/s²):</label>
+            <input type="range" id="gravity" min="1" max="20" value="9.81" step="0.1">
+            <span id="gravity-value">9.81</span>
+        </div>
+        
+        <div class="control-group">
+            <label for="mass">Mass (kg):</label>
+            <input type="range" id="mass" min="50" max="150" value="80" step="1">
+            <span id="mass-value">80</span>
+        </div>
+        
+        <div class="button-group">
+            <button id="deploy-parachute">Deploy Parachute</button>
+            <button id="reset-simulation">Reset</button>
+            <button id="start-simulation">Start Jump</button>
+        </div>
+        
+        <!-- Physics Display -->
+        <div id="physics-display">
+            <h4>Real-time Physics</h4>
+            <div class="physics-info">
+                <div>Velocity: <span id="velocity-display">0.0</span> m/s</div>
+                <div>Altitude: <span id="altitude-display">3000</span> m</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Debug Log -->
+    <div id="debug-log" style="position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; max-width: 400px; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px;">
+        <div>Debug Log:</div>
+    </div>
+
+    <!-- Import Three.js -->
+    <script src="lib/three.min.js"></script>
+    <script src="lib/OrbitControls.js"></script>
+    
+    <script>
+        // Debug logging function
+        function debugLog(message) {
+            console.log(message);
+            const logDiv = document.getElementById('debug-log');
+            const logEntry = document.createElement('div');
+            logEntry.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        debugLog('Starting debug initialization...');
+        
+        // Check Three.js availability
+        if (typeof THREE === 'undefined') {
+            debugLog('ERROR: THREE.js not loaded');
+        } else {
+            debugLog('THREE.js loaded successfully');
+        }
+        
+        // Simple physics engine
+        class SimplePhysics {
+            constructor() {
+                this.position = new THREE.Vector3(0, 100, 0);
+                this.velocity = new THREE.Vector3(0, 0, 0);
+                this.gravity = 9.81;
+                this.mass = 80;
+                debugLog('Physics engine initialized');
+            }
+            
+            update(deltaTime) {
+                // Simple gravity
+                this.velocity.y -= this.gravity * deltaTime;
+                this.position.add(this.velocity.clone().multiplyScalar(deltaTime));
+                
+                // Ground collision
+                if (this.position.y <= 0) {
+                    this.position.y = 0;
+                    this.velocity.y = 0;
+                }
+            }
+            
+            getPosition() {
+                return this.position.clone();
+            }
+            
+            getVelocity() {
+                return this.velocity.length();
+            }
+            
+            getAltitude() {
+                return Math.max(0, this.position.y);
+            }
+        }
+        
+        // Simple scene setup
+        class SimpleScene {
+            constructor() {
+                try {
+                    debugLog('Creating scene...');
+                    this.scene = new THREE.Scene();
+                    this.scene.background = new THREE.Color(0x87CEEB);
+                    
+                    debugLog('Creating camera...');
+                    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                    this.camera.position.set(10, 50, 100);
+                    
+                    debugLog('Creating renderer...');
+                    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                    document.getElementById('container').appendChild(this.renderer.domElement);
+                    
+                    debugLog('Creating controls...');
+                    this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                    
+                    debugLog('Creating objects...');
+                    this.createObjects();
+                    
+                    debugLog('Scene setup complete');
+                    
+                } catch (error) {
+                    debugLog('ERROR in scene setup: ' + error.message);
+                    throw error;
+                }
+            }
+            
+            createObjects() {
+                // Ground
+                const groundGeometry = new THREE.PlaneGeometry(200, 200);
+                const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x228B22 });
+                this.ground = new THREE.Mesh(groundGeometry, groundMaterial);
+                this.ground.rotation.x = -Math.PI / 2;
+                this.scene.add(this.ground);
+                debugLog('Ground created');
+                
+                // Parachutist (simple cube)
+                const parachutistGeometry = new THREE.BoxGeometry(2, 4, 1);
+                const parachutistMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 });
+                this.parachutist = new THREE.Mesh(parachutistGeometry, parachutistMaterial);
+                this.parachutist.position.set(0, 100, 0);
+                this.scene.add(this.parachutist);
+                debugLog('Parachutist created');
+                
+                // Lighting
+                const light = new THREE.AmbientLight(0x404040, 1);
+                this.scene.add(light);
+                debugLog('Lighting added');
+            }
+            
+            updateParachutistPosition(position) {
+                if (this.parachutist) {
+                    this.parachutist.position.copy(position);
+                }
+            }
+            
+            render() {
+                this.controls.update();
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+        
+        // Main application
+        class DebugApp {
+            constructor() {
+                try {
+                    debugLog('Initializing debug app...');
+                    
+                    this.physics = new SimplePhysics();
+                    this.scene = new SimpleScene();
+                    this.clock = new THREE.Clock();
+                    
+                    this.setupControls();
+                    this.animate();
+                    
+                    debugLog('Debug app initialized successfully!');
+                    
+                } catch (error) {
+                    debugLog('FATAL ERROR: ' + error.message);
+                    console.error(error);
+                }
+            }
+            
+            setupControls() {
+                // Gravity control
+                const gravitySlider = document.getElementById('gravity');
+                const gravityValue = document.getElementById('gravity-value');
+                
+                gravitySlider.addEventListener('input', (e) => {
+                    this.physics.gravity = parseFloat(e.target.value);
+                    gravityValue.textContent = e.target.value;
+                });
+                
+                // Start button
+                const startBtn = document.getElementById('start-simulation');
+                startBtn.addEventListener('click', () => {
+                    this.physics.velocity.set(0, 0, 0);
+                    this.physics.position.set(0, 100, 0);
+                    debugLog('Simulation started');
+                });
+                
+                debugLog('Controls setup complete');
+            }
+            
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                const deltaTime = this.clock.getDelta();
+                
+                // Update physics
+                this.physics.update(deltaTime);
+                
+                // Update scene
+                this.scene.updateParachutistPosition(this.physics.getPosition());
+                
+                // Update display
+                const velocityDisplay = document.getElementById('velocity-display');
+                const altitudeDisplay = document.getElementById('altitude-display');
+                
+                if (velocityDisplay) {
+                    velocityDisplay.textContent = this.physics.getVelocity().toFixed(1);
+                }
+                
+                if (altitudeDisplay) {
+                    altitudeDisplay.textContent = this.physics.getAltitude().toFixed(0);
+                }
+                
+                // Render
+                this.scene.render();
+            }
+        }
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            debugLog('DOM loaded, starting app...');
+            new DebugApp();
+        });
+        
+        // If DOM is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            debugLog('DOM already loaded, starting app...');
+            new DebugApp();
+        }
+    </script>
+</body>
+</html>
+
