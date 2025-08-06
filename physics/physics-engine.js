@@ -166,6 +166,7 @@ class PhysicsEngine {
 
   // Calculate wind force
   calculateWindForce() {
+<<<<<<< HEAD
     const windSpeed = this.parameters.windSpeed; // السرعة المعطاة من الواجهة
     const bodyArea = this.parameters.bodyArea;   // مساحة جسم المظلي
     const airDensity = this.parameters.airDensity; // الكثافة
@@ -190,6 +191,14 @@ class PhysicsEngine {
     // نحدث قوة الرياح في الحالة العامة
     this.state.forces.wind.copy(windForce);
 
+=======
+    const windForce = new THREE.Vector3(
+      this.parameters.windSpeed * this.parameters.airDensity * 0.5,
+      0,
+      0,
+    );
+    this.state.forces.wind.copy(windForce);
+>>>>>>> de907e11f6fd11684e91fc156c72ebf02cdaf388
     return windForce;
   }
 
@@ -204,7 +213,11 @@ class PhysicsEngine {
 
     const terminalVelocity = Math.sqrt(
       (2 * this.parameters.mass * this.parameters.gravity) /
+<<<<<<< HEAD
       (this.parameters.airDensity * cd * area),
+=======
+        (this.parameters.airDensity * cd * area),
+>>>>>>> de907e11f6fd11684e91fc156c72ebf02cdaf388
     );
 
     return terminalVelocity;
@@ -285,9 +298,12 @@ class PhysicsEngine {
       // Sudden deceleration when parachute opens
       const currentSpeed = this.state.velocity.length();
       const deploymentShock = Math.min(currentSpeed * 0.3, 20); // Limit shock
+<<<<<<< HEAD
       if (this.elements.windForceDisplay) {
         this.elements.windForceDisplay.textContent = data.windForce.toFixed(1);
       }
+=======
+>>>>>>> de907e11f6fd11684e91fc156c72ebf02cdaf388
 
       // Reduce velocity in the direction of motion
       if (currentSpeed > 0) {
@@ -324,14 +340,20 @@ class PhysicsEngine {
       altitude: Math.max(0, this.state.position.y),
       acceleration: this.state.acceleration.length(),
       dragForce: this.state.forces.drag.length(),
+<<<<<<< HEAD
       gravityForce: this.state.forces.gravity.length(),
+=======
+>>>>>>> de907e11f6fd11684e91fc156c72ebf02cdaf388
       terminalVelocity: this.calculateTerminalVelocity(),
       kineticEnergy: this.calculateKineticEnergy(),
       position: this.state.position.clone(),
       parachuteDeployed: this.parameters.parachuteDeployed,
       time: this.state.time,
+<<<<<<< HEAD
       windForce: this.state.forces.wind.length(),
 
+=======
+>>>>>>> de907e11f6fd11684e91fc156c72ebf02cdaf388
     };
   }
 

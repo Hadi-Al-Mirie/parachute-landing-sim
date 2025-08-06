@@ -204,7 +204,11 @@ class Models {
 
   createGround() {
     // Create terrain with some variation
+<<<<<<< HEAD
     const groundGeometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
+=======
+    const groundGeometry = new THREE.PlaneGeometry(20000, 20000, 1000, 1000);
+>>>>>>> de907e11f6fd11684e91fc156c72ebf02cdaf388
     const ground = new THREE.Mesh(groundGeometry, this.materials.ground);
 
     // Add some height variation to make it more realistic
