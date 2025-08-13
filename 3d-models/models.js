@@ -149,29 +149,12 @@ class Models {
   }
 
   createPlane() {
-    /**
-     * Load the plane from an OBJ model.
-     *
-     * This implementation uses THREE.OBJLoader to read a .obj mesh from the
-     * local `assets/plane.obj` file.  The loader is asynchronous, so the
-     * returned group is created immediately and then populated once the file
-     * has finished loading.  If the OBJLoader script has not been included
-     * in your HTML, you will need to add it before this function runs.  See
-     * README or index.html for an example:
-     *
-     * `<script src="https://threejs.org/examples/js/loaders/OBJLoader.js"></script>`
-     *
-     * The loaded mesh is assigned the plane fuselage material by default.
-     */
     const plane = new THREE.Group();
-
-    // Create loader only if OBJLoader is available globally.
     if (typeof THREE.OBJLoader === "function") {
       const loader = new THREE.OBJLoader();
       loader.load(
         "assets/plane.obj",
         (obj) => {
-          // Rotate the entire model 90° around Y
           obj.rotation.y = (-1 * Math.PI) / 2;
 
           obj.traverse((child) => {

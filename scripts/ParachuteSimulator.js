@@ -65,7 +65,7 @@ class ParachuteSimulator {
     // Create camera
     const aspect = window.innerWidth / window.innerHeight;
     this.camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 5000);
-    this.camera.position.set(50, 3050, 100);
+    this.camera.position.set(50, 1550, 100);
 
     // Create renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -293,11 +293,11 @@ class ParachuteSimulator {
     // Place the parachutist and parachute at their default altitudes;
     // the animate loop will subsequently glue them to the plane when hasLanded is false
     this.parachutist.position.set(0, 1500, 0);
-    this.parachute.position.set(0, 3008, 0);
+    this.parachute.position.set(0, 1508, 0);
     this.plane.position.set(-100, 1508, 0);
 
     // Reset camera and OrbitControls target to initial values
-    this.camera.position.set(50, 3050, 100);
+    this.camera.position.set(50, 1550, 100);
     this.controls.target.set(0, 1500, 0);
 
     // Re-enable the deploy button and restore its label and styling
@@ -375,9 +375,9 @@ class ParachuteSimulator {
       }
       // camera follows the jumper
       const followPos = physicsData.position.clone();
-      const cameraOffset = new THREE.Vector3(5, 20, 100);
-      this.camera.position.lerp(followPos.clone().add(cameraOffset), 0.02);
-      this.controls.target.lerp(followPos, 0.02);
+      const cameraOffset = new THREE.Vector3(10, 15, 23);
+      this.camera.position.lerp(followPos.clone().add(cameraOffset), 0.1);
+      this.controls.target.lerp(followPos, 0.1);
     } else {
       // before jump or after landing
       if (!this.hasLanded) {
@@ -390,9 +390,9 @@ class ParachuteSimulator {
 
         // camera follows plane
         const followPos = planePos.clone();
-        const cameraOffset = new THREE.Vector3(20, 20, 40);
-        this.camera.position.lerp(followPos.clone().add(cameraOffset), 0.02);
-        this.controls.target.lerp(followPos, 0.02);
+        const cameraOffset = new THREE.Vector3(20, 15, 23);
+        this.camera.position.lerp(followPos.clone().add(cameraOffset), 0.1);
+        this.controls.target.lerp(followPos, 0.1);
       } else {
         // after landing, keep model still and slowly orbit camera
         const landedPos = this.parachutist.position.clone();

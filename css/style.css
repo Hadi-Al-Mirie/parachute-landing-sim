@@ -18,30 +18,57 @@ body {
     position: relative;
 }
 
-/* Control Panel Styles */
-#control-panel {
+/* NEW: wrapper that positions both panels (fixed) */
+#control-wrapper {
     position: fixed;
     top: 20px;
     right: 20px;
-    width: 300px;
+    display: flex;
+    gap: 16px;
+    /* space between physics and control */
+    align-items: flex-start;
+    z-index: 1000;
+    pointer-events: auto;
+    max-height: 90vh;
+}
+
+/* Control Panel Styles (no longer fixed; inside wrapper) */
+#control-panel {
+    width: 320px;
     background: rgba(0, 0, 0, 0.8);
     color: white;
     padding: 20px;
     border-radius: 10px;
     backdrop-filter: blur(10px);
-    z-index: 1000;
     max-height: 90vh;
     overflow-y: auto;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
-#control-panel h3 {
-    margin-bottom: 20px;
+/* Physics Display placed to the left inside the wrapper */
+#physics-display {
+    width: 260px;
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 16px;
+    border-radius: 10px;
+    backdrop-filter: blur(6px);
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+}
+
+/* Headings */
+#control-panel h3,
+#physics-display h4 {
+    margin-bottom: 12px;
     color: #87CEEB;
     text-align: center;
     border-bottom: 2px solid #4682B4;
-    padding-bottom: 10px;
+    padding-bottom: 8px;
 }
 
+/* Controls inside the control panel */
 .control-group {
     margin-bottom: 15px;
 }
@@ -123,19 +150,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* Physics Display */
-#physics-display {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #444;
-}
-
-#physics-display h4 {
-    color: #87CEEB;
-    margin-bottom: 10px;
-    text-align: center;
-}
-
+/* Physics Display content */
 .physics-info div {
     display: flex;
     justify-content: space-between;
@@ -247,43 +262,6 @@ body {
     display: none !important;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-    #control-panel {
-        width: 280px;
-        right: 10px;
-        top: 10px;
-        font-size: 12px;
-    }
-
-    #instructions {
-        max-width: 90vw;
-        padding: 20px;
-    }
-}
-
-/* Animation for parachute deployment */
-@keyframes parachute-deploy {
-    0% {
-        transform: scale(0.1);
-        opacity: 0;
-    }
-
-    50% {
-        transform: scale(1.2);
-        opacity: 0.8;
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.parachute-deployed {
-    animation: parachute-deploy 1s ease-out;
-}
-
 /* Status indicators */
 .status-indicator {
     position: fixed;
@@ -311,7 +289,7 @@ body {
 
 /* Health bar styles */
 #health-container {
-    margin-top: 20px;
+    margin-top: 12px;
 }
 
 #health-container .health-text {
@@ -319,7 +297,8 @@ body {
     justify-content: space-between;
     align-items: center;
     font-size: 13px;
-    color: #ccc;
+    margin-right: 5px !important;
+    color: #ccc !important;
 }
 
 #health-bar-wrapper {
@@ -336,4 +315,55 @@ body {
     width: 100%;
     background: #4ecdc4;
     transition: width 0.3s ease, background 0.3s ease;
+}
+
+/* Parachute animation */
+@keyframes parachute-deploy {
+    0% {
+        transform: scale(0.1);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.parachute-deployed {
+    animation: parachute-deploy 1s ease-out;
+}
+
+/* Responsive design: stack panels on narrow screens */
+@media (max-width: 768px) {
+    #control-wrapper {
+        right: 10px;
+        top: 10px;
+        display: flex;
+        flex-direction: column-reverse;
+        /* put controls under the physics display */
+        gap: 12px;
+        align-items: stretch;
+        width: calc(100% - 20px);
+        max-height: calc(100vh - 20px);
+        overflow: auto;
+    }
+
+    #control-panel {
+        width: 100%;
+    }
+
+    #physics-display {
+        width: 100%;
+    }
+
+    #instructions {
+        max-width: 90vw;
+        padding: 20px;
+    }
 }
